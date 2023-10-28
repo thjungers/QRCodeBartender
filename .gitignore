@@ -2,3 +2,5 @@
 *.yaml
 __pycache__
 .venv
+.vscode
+config.json
