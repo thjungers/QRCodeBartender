@@ -17,7 +17,7 @@ def get_db() -> Session:
         db.close()
 
 
-@app.get("/menu")
+@app.get("/menu/")
 def get_menu():
     return menu
 
@@ -25,7 +25,7 @@ def get_menu():
 def get_menu_item(item_id: int):
     return [item for item in menu if item["id"] == item_id][0]
 
-@app.get("/tables", response_model=list[schemas.Table])
+@app.get("/tables/", response_model=list[schemas.Table])
 def get_tables(db: Session = Depends(get_db)):
     return crud.get_tables(db)
 
