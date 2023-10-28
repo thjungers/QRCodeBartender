@@ -1,4 +1,5 @@
 from fastapi import Depends, FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from yaml import safe_load
 
@@ -8,6 +9,18 @@ from .database import SessionLocal
 app = FastAPI()
 with open("menu.yaml", "r") as file:
     menu = safe_load(file.read())
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://127.0.0.1:5500",
+        "http://localhost:5500",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 def get_db() -> Session:
     db = SessionLocal()
