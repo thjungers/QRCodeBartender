@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 
+
 class TableBase(BaseModel):
     name: str
     slug: str
@@ -14,25 +15,39 @@ class Table(TableBase):
         from_attributes = True
 
 
-class MenuCategoryBase(BaseModel):
-    name: str
-
-class MenuCategoryCreate(MenuCategoryBase):
-    pass
-
-class MenuCategory(MenuCategoryBase):
+class MenuCategory(BaseModel):
+    """Category in the menu, read-only for now."""
     id: int
+    name: str
+    slug: str
 
     class Config:
         from_attributes = True
 
 
-class MenuItemBase(BaseModel):
+class Option(BaseModel):
+    """Option for items, read-only for now."""
+    id: int
+    name: str
+    slug: str
+    type: str
+
+    class Config:
+        from_attributes = True
+
+
+class MenuItem(BaseModel):
+    """Item on the menu, read-only for now."""
+    id: int
     name: str
     description: str
-    category_id: int
+    image: str
+    category: MenuCategory
+    options: list[Option]
 
-    
+    class Config:
+        from_attributes = True
+
 
 
 # class TableDeep(TableBase):
