@@ -14,7 +14,7 @@ const throwNotOkResponse = res => {
 }
 
 /**
- * Perform an API call with the given string
+ * Perform a GET API call with the given string
  * @param {string} uri the URI of the API call, relative to the root API URL
  * @returns the fetch Promise
  */
@@ -24,7 +24,32 @@ const request = async uri => {
 }
 
 /**
+ * Perform a POST API call with the given string
+ * @param {string} uri the URI of the API call, relative to the root API URL
+ * @param {string} body the request body
+ * @returns the fetch Promise
+ */
+const requestPost = async (uri, body) => {
+    console.log(body)
+    return fetch(config.backend_url + uri, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(body)
+    })
+    .then(throwNotOkResponse)
+}
+
+/**
  * Get the menu from the API
  * @returns the fetch Promise
  */
 export const getMenu = async () => request("/menu/")
+
+/**
+ * Post a new order
+ * @param order
+ * @returns the fetch Promise
+ */
+export const postOrder = async order => requestPost("/orders/", order)

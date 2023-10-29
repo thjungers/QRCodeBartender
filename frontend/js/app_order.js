@@ -2,7 +2,7 @@
 
 import { localize, t } from "./i18n.js"
 import config from "./config.js"
-import { getMenu } from "./gateway.js"
+import { getMenu, postOrder } from "./gateway.js"
 
 /** @typedef {{"id": int, "name": string, "slug": string}} MenuCategory */
 /** @typedef {{"id": int, "name": string, "slug": string, "type": string}} MenuItemOption */
@@ -23,6 +23,7 @@ const init = () => {
     modals.addItem = new bootstrap.Modal("#add-item-modal")
     modals.showCart = new bootstrap.Modal("#show-cart-modal")
     document.getElementById("show-cart-modal").addEventListener("show.bs.modal", updateCartModal)
+    document.querySelector("#show-cart-modal-submit").addEventListener("click", submitCart)
 }
 
 /** Populate the UI with the menu
@@ -165,7 +166,7 @@ const getOptionInputId = option => `modal-option_${option.slug}`
 
 /** Add an item and the chosen options to the cart
  * @param {MenuItem} item
- * @param options A mapping of the option slugs and the chosen value
+ * @param options A mapping of the option slugs and the chosen value (this is easier to check for identical options)
  */
 const addItemToCart = (item, options) => {
     // Check if this item, with the same options, is already in the cart
@@ -266,6 +267,26 @@ const updateCartModal = () => {
 
         modalBody.appendChild(clone)
     }
+}
+
+/** Save the cart as a new order to the API */
+const submitCart = () => {
+    postOrder({
+        client_name: "Thomas", // TODO ask the user
+        table_slug: "salon", // TODO ask the user
+        items: cart.map(elm => ({
+            menu_item_id: elm.item.id,
+            quantity: elm.quantity,
+            options: Object.keys(elm.options).map(slug => ({
+                option_slug: slug,
+                value: elm.options[slug]
+            }))
+        }))
+    }).then(() => {
+        cart.length = 0
+        modals.showCart.hide()
+        updateCartBar()
+    })
 }
 
 /** 
