@@ -48,8 +48,8 @@ class Order(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
     client_name: Mapped[str]
-    started: Mapped[bool]
-    served: Mapped[bool]
+    started: Mapped[bool] = mapped_column(default=False)
+    served: Mapped[bool] = mapped_column(default=False)
 
     table_id: Mapped[int] = mapped_column(ForeignKey("tables.id"))
 
