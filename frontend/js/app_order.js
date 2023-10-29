@@ -4,8 +4,14 @@ import { localize, t } from "./i18n.js"
 import config from "./config.js"
 import { getMenu } from "./gateway.js"
 
+/** @typedef {{"id": int, "name": string, "slug": string}} MenuCategory */
+/** @typedef {{"id": int, "name": string, "slug": string, "type": string}} MenuItemOption */
+/** @typedef {{"id": int, "name": string, "description": string, "image": string, "category": MenuCategory, "options": MenuItemOption[]}} MenuItem */
+
+/** @type {MenuItem[]} */
 const menuItems = []
-const itemsPerCategory = {}
+/** @type {MenuCategory[]} */
+const categories = []
 const cart = []
 const modals = {}
 
@@ -17,27 +23,30 @@ const init = () => {
     document.getElementById("show-cart-modal").addEventListener("show.bs.modal", updateCartModal)
 }
 
+/** @param {MenuItem[]} menuData */
 const createMenu = menuData => {
     for (const item of menuData) {
         menuItems.push(item)
-        if (!(item.category in itemsPerCategory))
-            itemsPerCategory[item.category] = []
-        itemsPerCategory[item.category].push(item)
+        if (!categories.find(category => category.slug === item.category.slug)) {
+            categories.push(item.category)
+        }
     }
+    // Sort categories by id
+    categories.sort((a, b) => a.id - b.id)
 
     const menuDiv = document.getElementById("menu")
     const menuCategoryTemplate = document.getElementById("menu-category-template")
     const menuItemTemplate = document.getElementById("menu-item-template")
 
-    for (const category in itemsPerCategory) {
-        const items = itemsPerCategory[category]
+    for (const category of categories) {
+        const items = menuItems.filter(item => item.category.slug === category.slug)
 
         /** @type {HTMLElement} */
         const menuCategoryClone = menuCategoryTemplate.content.cloneNode(true)
 
-        const accordionId = `accordion-${category}`
+        const accordionId = `accordion-${category.slug}`
         menuCategoryClone.querySelector(".menu-category-header > button").setAttribute("data-bs-target", "#" + accordionId)
-        menuCategoryClone.querySelector(".menu-category-header > button").textContent = category
+        menuCategoryClone.querySelector(".menu-category-header > button").textContent = category.name
         menuCategoryClone.querySelector(".menu-category-block").setAttribute("id", accordionId)
 
         const menuCategoryContent = menuCategoryClone.querySelector(".accordion-body")
@@ -49,7 +58,7 @@ const createMenu = menuData => {
             itemElm.querySelector(".card-text").textContent = item.description
             itemElm.querySelector("img").setAttribute("src", item.image)
 
-            const addItemCallback = "options" in item ? showAddItemModal : addItemToCart
+            const addItemCallback = item.options.length ? showAddItemModal : addItemToCart
             itemElm.querySelector(".add-to-cart-btn").addEventListener("click", event => addItemCallback(item))
 
             menuCategoryContent.appendChild(itemElm)
