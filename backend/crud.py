@@ -21,6 +21,7 @@ def create_order(order: schemas.OrderCreate, db: Session):
         items=[
             models.OrderItem(
                 menu_item=get_menu_item(item.menu_item_id, db),
+                quantity=item.quantity,
                 options=[
                     models.OrderOption(
                         value=option.value,

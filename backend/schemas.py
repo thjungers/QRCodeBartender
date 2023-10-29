@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class Table(BaseModel):
@@ -65,12 +65,14 @@ class OrderOptionDeep(OrderOption):
 class OrderItemCreate(BaseModel):
     """An item in an order to create."""
     menu_item_id: int
+    quantity: int = Field(gt=0)
     options: list[OrderOptionCreate]
 
 class OrderItem(BaseModel):
     """An item in an order in the database."""
     id: int
     menu_item: MenuItem
+    quantity: int
     options: list[OrderOption]
 
 class OrderItemDeep(OrderItem):

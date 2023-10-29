@@ -60,6 +60,7 @@ class OrderItem(Base):
     __tablename__ = "order_items"
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    quantity: Mapped[int]
 
     order_id: Mapped[int] = mapped_column(ForeignKey("orders.id"))
     menu_item_id: Mapped[int] = mapped_column(ForeignKey("menu_items.id"))
