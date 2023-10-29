@@ -1,22 +1,18 @@
 from pydantic import BaseModel
 
 
-class TableBase(BaseModel):
+class Table(BaseModel):
+    """A table that can make orders, read-only for now."""
+    id: int
     name: str
     slug: str
-
-class TableCreate(TableBase):
-    pass
-
-class Table(TableBase):
-    id: int
 
     class Config:
         from_attributes = True
 
 
 class MenuCategory(BaseModel):
-    """Category in the menu, read-only for now."""
+    """A category in the menu, read-only for now."""
     id: int
     name: str
     slug: str
@@ -26,7 +22,7 @@ class MenuCategory(BaseModel):
 
 
 class Option(BaseModel):
-    """Option for items, read-only for now."""
+    """An option for items, read-only for now."""
     id: int
     name: str
     slug: str
@@ -37,7 +33,7 @@ class Option(BaseModel):
 
 
 class MenuItem(BaseModel):
-    """Item on the menu, read-only for now."""
+    """An item on the menu, read-only for now."""
     id: int
     name: str
     description: str
@@ -48,10 +44,3 @@ class MenuItem(BaseModel):
 
     class Config:
         from_attributes = True
-
-
-
-# class TableDeep(TableBase):
-#     id: int
-#     orders: list["Order"]
-
