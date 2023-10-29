@@ -15,7 +15,7 @@ await i18next
         fallbackLng: "fr",
         supportedLngs: ["fr"],
         load: "languageOnly",
-        ns: ["common"],
+        ns: ["common", "order", "admin"],
         defaultNS: "common",
     })
 
