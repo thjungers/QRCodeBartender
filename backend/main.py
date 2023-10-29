@@ -37,6 +37,10 @@ def seed_db(db: Session = Depends(get_db)):
 def get_menu(db: Session = Depends(get_db)):
     return crud.get_menu(db)
 
+@app.post("/orders/", response_model=schemas.Order)
+def get_menu(order: schemas.OrderCreate, db: Session = Depends(get_db)):
+    return crud.create_order(order, db)
+
 @app.get("/tables/", response_model=list[schemas.Table])
 def get_tables(db: Session = Depends(get_db)):
     return crud.get_tables(db)
