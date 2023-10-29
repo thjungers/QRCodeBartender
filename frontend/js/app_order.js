@@ -7,11 +7,13 @@ import { getMenu } from "./gateway.js"
 /** @typedef {{"id": int, "name": string, "slug": string}} MenuCategory */
 /** @typedef {{"id": int, "name": string, "slug": string, "type": string}} MenuItemOption */
 /** @typedef {{"id": int, "name": string, "description": string, "image": string, "available": bool, "category": MenuCategory, "options": MenuItemOption[]}} MenuItem */
+/** @typedef {{item: MenuItem, options: {}, quantity: int}} CartItem */
 
 /** @type {MenuItem[]} */
 const menuItems = []
 /** @type {MenuCategory[]} */
 const categories = []
+/** @type {CartItem[]} */
 const cart = []
 const modals = {}
 
@@ -23,7 +25,8 @@ const init = () => {
     document.getElementById("show-cart-modal").addEventListener("show.bs.modal", updateCartModal)
 }
 
-/** @param {MenuItem[]} menuData */
+/** Populate the UI with the menu
+ * @param {MenuItem[]} menuData */
 const createMenu = menuData => {
     for (const item of menuData) {
         menuItems.push(item)
@@ -59,7 +62,7 @@ const createMenu = menuData => {
             itemElm.querySelector(".card-text").textContent = item.description
             itemElm.querySelector("img").setAttribute("src", item.image)
             if (!item.available) {
-                showItemAvailable(item, card)
+                showItemAvailability(item, card)
             }
 
             const addItemCallback = item.options.length ? showAddItemModal : addItemToCart
@@ -68,7 +71,7 @@ const createMenu = menuData => {
                 // Each card listens for this event on the document. If it is concerned, it changes its status
                 if (event.detail.item_id === item.id) {
                     item.available = event.detail.available
-                    showItemAvailable(item, card)
+                    showItemAvailability(item, card)
                 }
             })
 
@@ -78,6 +81,8 @@ const createMenu = menuData => {
     }
 }
 
+/** Show the modal to add this item to the cart, letting the user choose options
+ * @param {MenuItem} item */
 const showAddItemModal = item => {
     const modalDiv = document.getElementById("add-item-modal")
     const modal = modals.addItem
@@ -153,8 +158,15 @@ const showAddItemModal = item => {
     }
 }
 
+/** Create the input ID for the given option 
+ * @param {MenuItemOption} option
+*/
 const getOptionInputId = option => `modal-option_${option.slug}`
 
+/** Add an item and the chosen options to the cart
+ * @param {MenuItem} item
+ * @param options A mapping of the option slugs and the chosen value
+ */
 const addItemToCart = (item, options) => {
     // Check if this item, with the same options, is already in the cart
     const itemInCart = cart.find(elm => {
@@ -182,6 +194,7 @@ const addItemToCart = (item, options) => {
     updateCartBar()
 }
 
+/** Update the text in the cart bar, at the bottom of the UI */
 const updateCartBar = () => {
     const cartBar = document.getElementById("cart-bar")
     if (cart.length === 0) {
@@ -197,6 +210,7 @@ const updateCartBar = () => {
     }
 }
 
+/** Update the contents of the cart modal */
 const updateCartModal = () => {
     const modalBody = document.querySelector("#show-cart-modal .list-cart-items")
     const template = document.getElementById("cart-item-template")
@@ -254,6 +268,12 @@ const updateCartModal = () => {
     }
 }
 
+/** 
+ * Set the "minus" button in a button group to the "trash" icon if removing 
+ * one item would delete it, otherwise set it to the "dash" icon
+ * @param {HTMLElement} root The button group
+ * @param {CartItem} item 
+ */
 const setDashOrTrash = (root, item) => {
     const btn = root.querySelector(".remove-one-cart-item-btn")
     const icon = btn.querySelector(".bi")
@@ -278,7 +298,7 @@ const setDashOrTrash = (root, item) => {
  * @param {MenuItem} item 
  * @param {HTMLElement} element The root card element (with class "card")
 */
-const showItemAvailable = (item, element) => {
+const showItemAvailability = (item, element) => {
     if (item.available) {
         element.classList.remove("disabled")
         element.querySelector("button").classList.remove("disabled")
