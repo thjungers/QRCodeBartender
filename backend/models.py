@@ -10,13 +10,6 @@ menu_items_options_table = Table(
     Column("option_id", ForeignKey("options.id")),
 )
 
-menu_items_order_items_table = Table(
-    "menu_items_m2m_order_items",
-    Base.metadata,
-    Column("menu_item_id", ForeignKey("menu_items.id")),
-    Column("order_item_id", ForeignKey("order_items.id")),
-)
-
 class Table(Base):
     __tablename__ = "tables"
 
@@ -48,7 +41,7 @@ class MenuItem(Base):
     
     category: Mapped["MenuCategory"] = relationship(back_populates="items")
     options: Mapped[list["Option"]] = relationship(secondary=menu_items_options_table, back_populates="menu_item")
-    order_items: Mapped[list["OrderItem"]] = relationship(secondary=menu_items_order_items_table, back_populates="menu_item")
+    order_items: Mapped[list["OrderItem"]] = relationship(back_populates="menu_item")
 
 class Order(Base):
     __tablename__ = "orders"
@@ -69,10 +62,10 @@ class OrderItem(Base):
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
 
     order_id: Mapped[int] = mapped_column(ForeignKey("orders.id"))
-    menu_item_id: Mapped[int] = mapped_column(ForeignKey("menu_items.id")) # TODO this is a many-to-many
+    menu_item_id: Mapped[int] = mapped_column(ForeignKey("menu_items.id"))
 
     order: Mapped["Order"] = relationship(back_populates="items")
-    menu_item: Mapped[list["MenuItem"]] = relationship(secondary=menu_items_order_items_table, back_populates="order_items")
+    menu_item: Mapped["MenuItem"] = relationship(back_populates="order_items")
     options: Mapped[list["OrderOption"]] = relationship(back_populates="order_item")
 
 class Option(Base):
