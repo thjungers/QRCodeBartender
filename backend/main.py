@@ -1,14 +1,12 @@
 from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
-from yaml import safe_load
 
 from . import crud, schemas
 from .database import SessionLocal
+from .seeding import seed_database
 
 app = FastAPI()
-with open("menu.yaml", "r") as file:
-    menu = safe_load(file.read())
 
 app.add_middleware(
     CORSMiddleware,
@@ -30,9 +28,9 @@ def get_db() -> Session:
         db.close()
 
 
-@app.get("/menu/")
-def get_menu():
-    return menu
+@app.get("/seed/")
+def seed_db(db: Session = Depends(get_db)):
+    return seed_database(db)
 
 @app.get("/menu/{item_id}")
 def get_menu_item(item_id: int):
