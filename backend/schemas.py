@@ -49,12 +49,12 @@ class MenuItem(BaseModel):
 class OrderOptionCreate(BaseModel):
     """An option for an item in an order to create."""
     option_slug: str
-    value: str
+    value: str | bool
 
 class OrderOption(BaseModel):
     """An option for an item in an order in the database."""
     id: int
-    value: str
+    value: str | bool
     option: Option
 
 class OrderOptionDeep(OrderOption):
