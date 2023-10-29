@@ -6,7 +6,7 @@ import { getMenu } from "./gateway.js"
 
 /** @typedef {{"id": int, "name": string, "slug": string}} MenuCategory */
 /** @typedef {{"id": int, "name": string, "slug": string, "type": string}} MenuItemOption */
-/** @typedef {{"id": int, "name": string, "description": string, "image": string, "category": MenuCategory, "options": MenuItemOption[]}} MenuItem */
+/** @typedef {{"id": int, "name": string, "description": string, "image": string, "available": bool, "category": MenuCategory, "options": MenuItemOption[]}} MenuItem */
 
 /** @type {MenuItem[]} */
 const menuItems = []
@@ -54,12 +54,23 @@ const createMenu = menuData => {
         for (const item of items) {
             /** @type {HTMLElement} */
             const itemElm = menuItemTemplate.content.cloneNode(true)
+            const card = itemElm.querySelector(".card")
             itemElm.querySelector(".card-title").textContent = item.name
             itemElm.querySelector(".card-text").textContent = item.description
             itemElm.querySelector("img").setAttribute("src", item.image)
+            if (!item.available) {
+                showItemAvailable(item, card)
+            }
 
             const addItemCallback = item.options.length ? showAddItemModal : addItemToCart
             itemElm.querySelector(".add-to-cart-btn").addEventListener("click", event => addItemCallback(item))
+            document.addEventListener("app-menu-item-availability", event => {
+                // Each card listens for this event on the document. If it is concerned, it changes its status
+                if (event.detail.item_id === item.id) {
+                    item.available = event.detail.available
+                    showItemAvailable(item, card)
+                }
+            })
 
             menuCategoryContent.appendChild(itemElm)
         }
@@ -261,6 +272,24 @@ const setDashOrTrash = (root, item) => {
         btn.classList.remove("text-danger")
         icon.classList.remove("bi-trash")
     }
+}
+
+/** Show the availability of an item in the UI
+ * @param {MenuItem} item 
+ * @param {HTMLElement} element The root card element (with class "card")
+*/
+const showItemAvailable = (item, element) => {
+    if (item.available) {
+        element.classList.remove("disabled")
+        element.querySelector("button").classList.remove("disabled")
+        element.querySelector(".card-text").textContent = item.description
+    }
+    else {
+        element.classList.add("disabled")
+        element.querySelector("button").classList.add("disabled")
+        element.querySelector(".card-text").textContent = t("order:item-not-available")
+    }
+
 }
 
 /** @param {HTMLElement} form  */

@@ -42,6 +42,7 @@ class MenuItem(BaseModel):
     name: str
     description: str
     image: str
+    available: bool
     category: MenuCategory
     options: list[Option]
 

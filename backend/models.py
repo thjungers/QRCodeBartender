@@ -42,6 +42,7 @@ class MenuItem(Base):
     name: Mapped[str]
     description: Mapped[str]
     image: Mapped[str]
+    available: Mapped[bool] = mapped_column(default=True)
 
     category_id: Mapped[int] = mapped_column(ForeignKey("categories.id"))
     

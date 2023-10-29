@@ -63,3 +63,7 @@
 .cart-item-name {
     line-height: 42px;
 }
+
+.disabled img {
+    filter: grayscale(100%);
+}
