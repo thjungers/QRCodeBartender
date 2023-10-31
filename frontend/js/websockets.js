@@ -36,9 +36,9 @@ export const connectWebSocket = user_type => {
 
     ws.onmessage = event => {
         /** @type {{"name": string, "detail": {}}} */
-        const wsEvent = JSON.parse(event.data)
+        const apiEvent = JSON.parse(event.data)
         document.dispatchEvent(
-            new CustomEvent(wsEvent.name, {detail: wsEvent.detail})
+            new CustomEvent(apiEvent.name, {detail: apiEvent.detail})
         )
     }
 }
