@@ -39,8 +39,8 @@ class MenuItem(Base):
 
     category_id: Mapped[int] = mapped_column(ForeignKey("categories.id"))
     
-    category: Mapped["MenuCategory"] = relationship(back_populates="items")
-    options: Mapped[list["Option"]] = relationship(secondary=menu_items_options_table, back_populates="menu_item")
+    category: Mapped["MenuCategory"] = relationship(back_populates="items", lazy='selectin')
+    options: Mapped[list["Option"]] = relationship(secondary=menu_items_options_table, back_populates="menu_item", lazy='selectin')
     order_items: Mapped[list["OrderItem"]] = relationship(back_populates="menu_item")
 
 class Order(Base):
@@ -53,8 +53,8 @@ class Order(Base):
 
     table_id: Mapped[int] = mapped_column(ForeignKey("tables.id"))
 
-    table: Mapped["Table"] = relationship(back_populates="orders")
-    items: Mapped[list["OrderItem"]] = relationship(back_populates="order")
+    table: Mapped["Table"] = relationship(back_populates="orders", lazy='selectin')
+    items: Mapped[list["OrderItem"]] = relationship(back_populates="order", lazy='selectin')
 
 class OrderItem(Base):
     __tablename__ = "order_items"
@@ -66,8 +66,8 @@ class OrderItem(Base):
     menu_item_id: Mapped[int] = mapped_column(ForeignKey("menu_items.id"))
 
     order: Mapped["Order"] = relationship(back_populates="items")
-    menu_item: Mapped["MenuItem"] = relationship(back_populates="order_items")
-    options: Mapped[list["OrderOption"]] = relationship(back_populates="order_item")
+    menu_item: Mapped["MenuItem"] = relationship(back_populates="order_items", lazy='selectin')
+    options: Mapped[list["OrderOption"]] = relationship(back_populates="order_item", lazy='selectin')
 
 class Option(Base):
     __tablename__ = "options"
@@ -89,6 +89,6 @@ class OrderOption(Base):
     option_id: Mapped[int] = mapped_column(ForeignKey("options.id"))
     order_item_id: Mapped[int] = mapped_column(ForeignKey("order_items.id"))
 
-    option: Mapped["Option"] = relationship(back_populates="order_options")
+    option: Mapped["Option"] = relationship(back_populates="order_options", lazy='selectin')
     order_item: Mapped["OrderItem"] = relationship(back_populates="options")
 
