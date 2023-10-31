@@ -6,7 +6,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from sqlalchemy.orm import Session
 
-from . import crud, schemas
+from .schemas import events, models
+
+from . import crud
 from .database import SessionLocal
 from .seeding import seed_database
 from .websockets import ws_endpoint, ws_manager
@@ -48,15 +50,15 @@ def seed_db(db: Session = Depends(get_db)):
     return seed_database(db)
 
 
-@app.get("/menu/", response_model=list[schemas.MenuItem])
+@app.get("/menu/", response_model=list[models.MenuItem])
 def get_menu(db: Session = Depends(get_db)):
     return crud.get_menu(db)
 
-@app.post("/orders/", response_model=schemas.Order)
-def get_menu(order: schemas.OrderCreate, db: Session = Depends(get_db)):
+@app.post("/orders/", response_model=models.Order)
+def get_menu(order: models.OrderCreate, db: Session = Depends(get_db)):
     return crud.create_order(order, db)
 
-@app.get("/tables/", response_model=list[schemas.Table])
+@app.get("/tables/", response_model=list[models.Table])
 def get_tables(db: Session = Depends(get_db)):
     return crud.get_tables(db)
 

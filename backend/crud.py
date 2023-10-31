@@ -1,29 +1,31 @@
 from sqlalchemy.orm import Session, selectinload
 
-from . import models, schemas
+from .schemas import models
+
+from . import models as db_models
 
 def get_menu(db: Session):
-    return db.query(models.MenuItem).options(
-        selectinload(models.MenuItem.category),
-        selectinload(models.MenuItem.options)
+    return db.query(db_models.MenuItem).options(
+        selectinload(db_models.MenuItem.category),
+        selectinload(db_models.MenuItem.options)
     ).all()
 
 def get_menu_item(menu_item_id: int, db: Session):
-    return db.query(models.MenuItem).filter(models.MenuItem.id == menu_item_id).first()
+    return db.query(db_models.MenuItem).filter(db_models.MenuItem.id == menu_item_id).first()
 
 def get_option_by_slug(option_slug: str, db: Session):
-    return db.query(models.Option).filter(models.Option.slug == option_slug).first()
+    return db.query(db_models.Option).filter(db_models.Option.slug == option_slug).first()
 
-def create_order(order: schemas.OrderCreate, db: Session):
-    order_db = models.Order(
+def create_order(order: models.OrderCreate, db: Session):
+    order_db = db_models.Order(
         client_name=order.client_name,
         table=get_table_by_slug(order.table_slug, db),
         items=[
-            models.OrderItem(
+            db_models.OrderItem(
                 menu_item=get_menu_item(item.menu_item_id, db),
                 quantity=item.quantity,
                 options=[
-                    models.OrderOption(
+                    db_models.OrderOption(
                         value=option.value,
                         option=get_option_by_slug(option.option_slug, db)
                     )
@@ -39,10 +41,10 @@ def create_order(order: schemas.OrderCreate, db: Session):
     return order_db
 
 def get_table_by_id(table_id: int, db: Session):
-    return db.query(models.Table).filter(models.Table.id == table_id).first()
+    return db.query(db_models.Table).filter(db_models.Table.id == table_id).first()
 
 def get_table_by_slug(table_slug: str, db: Session):
-    return db.query(models.Table).filter(models.Table.slug == table_slug).first()
+    return db.query(db_models.Table).filter(db_models.Table.slug == table_slug).first()
 
 def get_tables(db: Session):
-    return db.query(models.Table).all()
+    return db.query(db_models.Table).all()
