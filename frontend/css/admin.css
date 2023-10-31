@@ -1,0 +1,39 @@
+@media only screen and (orientation: portrait) {
+    /* Menu on top */
+
+    #admin-app {
+        flex-direction: column;
+    }
+
+    #admin-navbar {
+        flex-direction: row;
+    }
+}
+
+@media only screen and (orientation: landscape) {
+    /* Menu to the left */
+
+    #admin-app {
+        flex-direction: row;
+    }
+
+    #admin-navbar {
+        flex-direction: column;
+    }
+}
+
+.admin-navbar-element {
+    width: var(--app-nav-element-size);
+    height: var(--app-nav-element-size);
+    font-size: calc(var(--app-nav-element-size) * .4);
+    cursor: pointer;
+}
+
+.admin-navbar-element:hover {
+    background-color: var(--bs-tertiary-color);
+}
+
+.admin-navbar-element.active {
+    background-color: var(--bs-secondary-bg);
+    cursor: default;
+}

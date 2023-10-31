@@ -16,10 +16,15 @@ const throwNotOkResponse = res => {
 /**
  * Perform a GET API call with the given string
  * @param {string} uri the URI of the API call, relative to the root API URL
+ * @param {string} auth the base64-encoded username and password for Basic Auth
  * @returns the fetch Promise
  */
-const request = async uri => {
-    return fetch(config.backend_url + uri)
+const request = async (uri, auth) => {
+    const headers = {}
+    if (auth !== undefined)
+        headers.Authorization = `Basic ${auth}`
+
+    return fetch(config.backend_url + uri, {headers: headers})
     .then(throwNotOkResponse)
 }
 
@@ -27,25 +32,40 @@ const request = async uri => {
  * Perform a POST API call with the given string
  * @param {string} uri the URI of the API call, relative to the root API URL
  * @param {string} body the request body
+ * @param {string} auth the base64-encoded username and password for Basic Auth
  * @returns the fetch Promise
  */
 const requestPost = async (uri, body) => {
-    console.log(body)
+    const headers = {"Content-Type": "application/json"}
+    if (auth !== undefined)
+        headers.Authorization = `Basic ${auth}`
+
     return fetch(config.backend_url + uri, {
         method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
+        headers: headers,
         body: JSON.stringify(body)
     })
     .then(throwNotOkResponse)
 }
 
 /**
+ * Check the given credentials are valid, against the /auth/ API route
+ * @param {string} auth the base64-encoded username and password for Basic Auth
+ * @returns {bool}
+ */
+export const checkAuth = async auth => request("/auth/", auth).then(() => true).catch(() => false)
+
+/**
  * Get the menu from the API
  * @returns the fetch Promise
  */
 export const getMenu = async () => request("/menu/")
+
+/**
+ * Get the orders from the API
+ * @returns the fetch Promise
+ */
+export const getOrders = async auth => request("/orders/", auth)
 
 /**
  * Post a new order
