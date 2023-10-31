@@ -13,6 +13,9 @@ def get_menu_item(menu_item_id: int, db: Session):
 def get_option_by_slug(option_slug: str, db: Session):
     return db.query(db_models.Option).filter(db_models.Option.slug == option_slug).first()
 
+def get_orders(db: Session):
+    return db.query(db_models.Order).all()
+
 def create_order(order: models.OrderCreate, db: Session):
     order_db = db_models.Order(
         client_name=order.client_name,
