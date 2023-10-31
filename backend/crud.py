@@ -1,11 +1,11 @@
-from sqlalchemy.orm import Session, subqueryload
+from sqlalchemy.orm import Session, selectinload
 
 from . import models, schemas
 
 def get_menu(db: Session):
     return db.query(models.MenuItem).options(
-        subqueryload(models.MenuItem.category),
-        subqueryload(models.MenuItem.options)
+        selectinload(models.MenuItem.category),
+        selectinload(models.MenuItem.options)
     ).all()
 
 def get_menu_item(menu_item_id: int, db: Session):
