@@ -55,7 +55,7 @@ def get_menu(db: Session = Depends(get_db)):
     return crud.get_menu(db)
 
 @app.post("/orders/", response_model=models.Order)
-def get_menu(order: models.OrderCreate, db: Session = Depends(get_db)):
+def create_order(order: models.OrderCreate, db: Session = Depends(get_db)):
     return crud.create_order(order, db)
 
 @app.get("/tables/", response_model=list[models.Table])
