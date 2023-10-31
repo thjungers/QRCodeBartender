@@ -3,6 +3,7 @@ from uuid import UUID
 
 from fastapi import Body, Depends, FastAPI, HTTPException, status, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from sqlalchemy.orm import Session
 
 from . import crud, schemas
@@ -23,13 +24,23 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
+# Dependency to open a database session
 def get_db() -> Session:
     db = SessionLocal()
     try:
         yield db
     finally:
         db.close()
+
+# Dependency to authenticate with HTTP Basic Auth
+security = HTTPBasic()
+def secure(credentials: Annotated[HTTPBasicCredentials, Depends(security)]) -> None:
+    if not (credentials.username == "admin" and credentials.password == "admin"):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Basic"}
+        )
 
 
 @app.get("/seed/")
