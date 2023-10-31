@@ -1,8 +1,8 @@
 "use strict"
 
 import { localize, t } from "./i18n.js"
-import config from "./config.js"
 import { getMenu, postOrder } from "./gateway.js"
+import { connectWebSocket } from "./websockets.js"
 
 /** @typedef {{"id": int, "name": string, "slug": string}} MenuCategory */
 /** @typedef {{"id": int, "name": string, "slug": string, "type": string}} MenuItemOption */
@@ -20,6 +20,8 @@ const modals = {}
 const init = () => {
     getMenu().then(response => response.json()).then(createMenu)
     localize("body")
+    connectWebSocket("client")
+
     modals.addItem = new bootstrap.Modal("#add-item-modal")
     modals.showCart = new bootstrap.Modal("#show-cart-modal")
     document.getElementById("show-cart-modal").addEventListener("show.bs.modal", updateCartModal)
