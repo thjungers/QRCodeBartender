@@ -1,14 +1,11 @@
-from sqlalchemy.orm import Session, selectinload
+from sqlalchemy.orm import Session
 
 from .schemas import models
 
 from . import models as db_models
 
 def get_menu(db: Session):
-    return db.query(db_models.MenuItem).options(
-        selectinload(db_models.MenuItem.category),
-        selectinload(db_models.MenuItem.options)
-    ).all()
+    return db.query(db_models.MenuItem).all()
 
 def get_menu_item(menu_item_id: int, db: Session):
     return db.query(db_models.MenuItem).filter(db_models.MenuItem.id == menu_item_id).first()
