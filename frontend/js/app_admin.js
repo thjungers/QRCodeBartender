@@ -4,6 +4,10 @@ import Cookies from "https://cdn.jsdelivr.net/npm/js-cookie@3.0.5/+esm"
 import { checkAuth, getOrders } from "./gateway.js"
 import config from "./config.js"
 
+/** 
+ * @typedef {import("./typedef.js").Order} Order 
+ */
+
 const modals = {}
 
 const init = () => {

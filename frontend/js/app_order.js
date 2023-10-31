@@ -4,9 +4,9 @@ import { localize, t } from "./i18n.js"
 import { getMenu, postOrder } from "./gateway.js"
 import { connectWebSocket } from "./websockets.js"
 
-/** @typedef {{"id": int, "name": string, "slug": string}} MenuCategory */
-/** @typedef {{"id": int, "name": string, "slug": string, "type": string}} MenuItemOption */
-/** @typedef {{"id": int, "name": string, "description": string, "image": string, "available": bool, "category": MenuCategory, "options": MenuItemOption[]}} MenuItem */
+/** @typedef {import("./typedef.js").MenuCategory} MenuCategory */
+/** @typedef {import("./typedef.js").Option} Option */
+/** @typedef {import("./typedef.js").MenuItem} MenuItem */
 /** @typedef {{item: MenuItem, options: {}, quantity: int}} CartItem */
 
 /** @type {MenuItem[]} */
