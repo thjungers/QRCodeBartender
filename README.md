@@ -12,7 +12,8 @@ Create a `frontend/config.json` file containing the following keys:
 
 ```json
 {
-    "backend_url": ""
+    "backend_url": "",
+    "websocket_url": ""
 }
 ```
 

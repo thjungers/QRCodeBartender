@@ -1,10 +1,14 @@
-from fastapi import Depends, FastAPI
+from typing import Annotated
+from uuid import UUID
+
+from fastapi import Body, Depends, FastAPI, HTTPException, status, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 
 from . import crud, schemas
 from .database import SessionLocal
 from .seeding import seed_database
+from .websockets import ws_endpoint, ws_manager
 
 app = FastAPI()
 
@@ -44,3 +48,13 @@ def get_menu(order: schemas.OrderCreate, db: Session = Depends(get_db)):
 @app.get("/tables/", response_model=list[schemas.Table])
 def get_tables(db: Session = Depends(get_db)):
     return crud.get_tables(db)
+
+# Routes to open a websocket connection
+@app.websocket("/ws/client/{user_id}/")
+async def websocket_client_endpoint(websocket: WebSocket, user_id: UUID):
+    await ws_endpoint(websocket, "client", user_id)
+
+@app.websocket("/ws/admin/{user_id}/", dependencies=[Depends(secure)])
+async def websocket_admin_endpoint(websocket: WebSocket, user_id: UUID):
+    await ws_endpoint(websocket, "admin", user_id)
+
