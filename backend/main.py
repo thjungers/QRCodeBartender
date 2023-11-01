@@ -46,14 +46,14 @@ def secure(credentials: Annotated[HTTPBasicCredentials, Depends(security)]) -> N
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Basic"}
         )
+    
 
-
-@app.get("/seed/")
+@app.get("/seed/", dependencies=[Depends(secure)])
 def seed_db(db: Session = Depends(get_db)):
     return seed_database(db)
 
 @app.get("/auth/", dependencies=[Depends(secure)])
-def auth():
+def check_authentication_credentials():
     pass
 
 
