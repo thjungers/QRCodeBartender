@@ -3,11 +3,12 @@
 import { localize, t } from "./i18n.js"
 import { getMenu, postOrder } from "./gateway.js"
 import { connectWebSocket, getUserId } from "./websockets.js"
+import { formatOption } from "./app_shared.js"
 
 /** @typedef {import("./typedef.js").MenuCategory} MenuCategory */
 /** @typedef {import("./typedef.js").Option} Option */
 /** @typedef {import("./typedef.js").MenuItem} MenuItem */
-/** @typedef {{item: MenuItem, options: {}, quantity: int}} CartItem */
+/** @typedef {{item: MenuItem, options: {}, quantity: number}} CartItem */
 
 /** @type {MenuItem[]} */
 const menuItems = []
@@ -231,14 +232,7 @@ const updateCartModal = () => {
             const optionCat = cartItem.item.options.find(opt => opt.slug == option)
             const value = cartItem.options[option]
 
-            if (optionCat.type == "bool") {
-                const with_or_without = value ? t("with") : t("without")
-                p.textContent = `${with_or_without} ${optionCat.name.toLowerCase()}`
-            }
-            else if (optionCat.type[0] == "[") {
-                p.textContent = `${optionCat.name}: ${value}`
-            }
-
+            p.textContent = formatOption(optionCat, value)
             optionsDiv.appendChild(p)
         }
 
