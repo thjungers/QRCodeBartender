@@ -29,24 +29,43 @@ export const request = async (uri, auth) => {
 }
 
 /**
- * Perform a POST API call with the given string
+ * Perform an API call with a body
  * @param {string} uri the URI of the API call, relative to the root API URL
- * @param {string} body the request body
+ * @param {{}} body the request body
  * @param {string} auth the base64-encoded username and password for Basic Auth
+ * @param {"POST" | "PATCH"} method
  * @returns the fetch Promise
  */
-const requestPost = async (uri, body) => {
+const requestwithBody = async (uri, body, auth, method) => {
     const headers = {"Content-Type": "application/json"}
     if (auth !== undefined)
         headers.Authorization = `Basic ${auth}`
 
     return fetch(config.backend_url + uri, {
-        method: "POST",
+        method: method,
         headers: headers,
         body: JSON.stringify(body)
     })
     .then(throwNotOkResponse)
 }
+
+/**
+ * Perform a POST API call
+ * @param {string} uri the URI of the API call, relative to the root API URL
+ * @param {{}} body the request body
+ * @param {string} auth the base64-encoded username and password for Basic Auth
+ * @returns the fetch Promise
+ */
+const requestPost = async (uri, body, auth) => requestwithBody(uri, body, auth, "POST")
+
+/**
+ * Perform a PATCH API call
+ * @param {string} uri the URI of the API call, relative to the root API URL
+ * @param {{}} body the request body
+ * @param {string} auth the base64-encoded username and password for Basic Auth
+ * @returns the fetch Promise
+ */
+const requestPatch = async (uri, body, auth) => requestwithBody(uri, body, auth, "PATCH")
 
 /**
  * Check the given credentials are valid, against the /auth/ API route
@@ -73,3 +92,11 @@ export const getOrders = async auth => request("/orders/", auth)
  * @returns the fetch Promise
  */
 export const postOrder = async order => requestPost("/orders/", order)
+
+/**
+ * Set an order as started
+ * @param {int} order_id
+ * @param {string} auth the base64-encoded username and password for Basic Auth
+ * @returns the fetch Promise
+ */
+export const setOrderStarted = async (order_id, auth) => requestPatch(`/orders/${order_id}/`, {started: true}, auth)

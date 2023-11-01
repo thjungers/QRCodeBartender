@@ -37,3 +37,20 @@
     background-color: var(--bs-secondary-bg);
     cursor: default;
 }
+
+.order-title {
+    line-height: 42px;
+}
+
+.preparing-order {
+    background-image: linear-gradient(45deg,rgba(255,255,255,.25) 25%,transparent 25%,transparent 50%,rgba(255,255,255,.25) 50%,rgba(255,255,255,.25) 75%,transparent 75%,transparent);
+    background-size: 4rem 4rem;
+    background-color: var(--bs-secondary-bg);
+    animation: 1s linear infinite progress-bar-stripes;
+}
+
+@keyframes progress-bar-stripes {
+    0% {
+        background-position-x: 4rem;
+    }
+}

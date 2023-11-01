@@ -3,5 +3,6 @@
     "login-username": "Nom d'utilisateur",
     "login-password": "Mot de passe",
     "login-submit": "OK",
-    "login-incorrect": "Le nom d'utilisateur ou le mot de passe est incorrect"
+    "login-incorrect": "Le nom d'utilisateur ou le mot de passe est incorrect",
+    "order-number": "Commande № "
 }

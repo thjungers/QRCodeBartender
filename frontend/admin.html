@@ -19,12 +19,51 @@
             <div class="admin-navbar-element flex-grow-1 d-flex align-items-center justify-content-around" data-app-target="#admin-menu"><i class="bi bi-cup-straw"></i></div>
             <div class="admin-navbar-element flex-grow-1 d-flex align-items-center justify-content-around" data-app-target="#admin-options"><i class="bi bi-toggles"></i></div>
         </nav>
-        <div id="admin-main-app" class="container-fluid flex-grow-1 bg-body-secondary overflow-scroll">
-            <div id="admin-orders"></div>
+        <div id="admin-main-app" class="container-fluid flex-grow-1 bg-body-secondary overflow-scroll py-3">
+            <div id="admin-orders" class="d-flex flex-column"></div>
             <div id="admin-menu" class="accordion pb-5"></div>
             <div id="admin-options"></div>
         </div>
     </div>
+    <!-- Template for orders -->
+    <template id="order-template">
+        <div class="card mb-2 order-card">
+            <div class="card-header d-flex">
+                <div class="order-title flex-grow-1">
+                    <span data-i18n="admin:order-number">Order #</span><span class="order-number"></span>
+                    &ndash;
+                    <span class="order-client-name"></span>
+                    @
+                    <span class="order-table-name"></span>
+                </div>
+                <div class="order-actions">
+                    <button type="button" class="btn btn-primary order-start-btn"><i class="bi bi-play-fill"></i></button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="d-flex flex-wrap order-items"></div>
+            </div>
+        </div>
+    </template>
+    <template id="order-item-template">
+        <div>
+            <input type="checkbox" class="btn-check" autocomplete="off" disabled>
+            <label class="btn btn-outline-secondary order-item mx-2 h-100 text-start">
+                <div class="order-item-header d-flex">
+                    <div class="rounded-pill px-2 bg-secondary text-bg-secondary me-2">
+                        <span class="order-item-quantity"></span>&times;
+                    </div>
+                    <div class="order-item-name flex-grow-1"></div>
+                </div>
+                <div>
+                    <ul class="order-item-options"></ul>
+                </div>
+            </label>
+        </div>
+    </template>
+    <template id="order-item-option-template">
+        <li class="order-item-option"></li>
+    </template>
     <!-- Templates for menu parts -->
     <template id="menu-category-template">
         <div class="accordion-item">
