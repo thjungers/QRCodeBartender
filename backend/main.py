@@ -1,7 +1,8 @@
+import secrets
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import Body, Depends, FastAPI, HTTPException, status, WebSocket
+from fastapi import Body, Depends, FastAPI, HTTPException, status, WebSocket, WebSocketException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from sqlalchemy.orm import Session
@@ -25,6 +26,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+ws_tokens = {}
 
 # Dependency to open a database session
 def get_db() -> Session:
@@ -71,11 +74,21 @@ def get_tables(db: Session = Depends(get_db)):
     return crud.get_tables(db)
 
 # Routes to open a websocket connection
+@app.get("/ws-auth/{user_id}", dependencies=[Depends(secure)])
+def get_authentication_token_for_websocket(user_id: UUID):
+    token = secrets.token_urlsafe()
+    ws_tokens[user_id] = token
+    return {"token": token}
+
 @app.websocket("/ws/client/{user_id}/")
 async def websocket_client_endpoint(websocket: WebSocket, user_id: UUID):
     await ws_endpoint(websocket, "client", user_id)
 
-@app.websocket("/ws/admin/{user_id}/", dependencies=[Depends(secure)])
-async def websocket_admin_endpoint(websocket: WebSocket, user_id: UUID):
+@app.websocket("/ws/admin/{user_id}/")
+async def websocket_admin_endpoint(websocket: WebSocket, user_id: UUID, token: str):
+    # Check the token before accepting the connection
+    if ws_tokens[user_id] != token:
+        raise WebSocketException(code=status.WS_1006_ABNORMAL_CLOSURE, reason="Authentication error: GET a valid token from /ws-auth/")
+
     await ws_endpoint(websocket, "admin", user_id)
 
