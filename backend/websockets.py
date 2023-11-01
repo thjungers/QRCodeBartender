@@ -32,12 +32,16 @@ class WebSocketConnectionManager:
         logger.info(f"WebSocker for user {self.user_types[user_id]}:{user_id} disconnected")
     
     async def send_message(self, message, user_id: UUID) -> None:
-        for websocket in self.active_connections[user_id]:
-            logger.info(f"Sending message to user {self.user_types[user_id]}:{user_id}")
-            try:
-                await websocket.send_json(message)
-            except WebSocketDisconnect:
-                self.disconnect(websocket, user_id)
+        try:
+            for websocket in self.active_connections[user_id]:
+                logger.info(f"Sending message to user {self.user_types[user_id]}:{user_id}")
+                try:
+                    await websocket.send_json(message)
+                except WebSocketDisconnect:
+                    self.disconnect(websocket, user_id)
+        except KeyError:
+            # The client has not connected since the server started
+            pass
     
     async def broadcast(self, message, user_type: str | None = None) -> None:
         websockets: list[WebSocket] = []
