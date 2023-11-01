@@ -19,6 +19,10 @@ def seed_database(db):
         option["slug"]: models.Option(**option)
         for option in seed_data["options"]
     }
+    tables = {
+        table["slug"]: models.Table(**table)
+        for table in seed_data["tables"]
+    }
     menu_items = [
         models.MenuItem(**dict(
             menu_item, 
@@ -34,6 +38,7 @@ def seed_database(db):
     db.add_all(
         list(categories.values())
         + list(options.values())
+        + list(tables.values())
         + menu_items
     )
     db.commit()
