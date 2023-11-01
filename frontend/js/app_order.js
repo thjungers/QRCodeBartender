@@ -2,7 +2,7 @@
 
 import { localize, t } from "./i18n.js"
 import { getMenu, postOrder } from "./gateway.js"
-import { connectWebSocket } from "./websockets.js"
+import { connectWebSocket, getUserId } from "./websockets.js"
 
 /** @typedef {import("./typedef.js").MenuCategory} MenuCategory */
 /** @typedef {import("./typedef.js").Option} Option */
@@ -20,7 +20,7 @@ const modals = {}
 const init = () => {
     getMenu().then(response => response.json()).then(createMenu)
     localize("body")
-    connectWebSocket("client")
+    connectWebSocket("client").then()
 
     modals.addItem = new bootstrap.Modal("#add-item-modal")
     modals.showCart = new bootstrap.Modal("#show-cart-modal")

@@ -19,7 +19,7 @@ const throwNotOkResponse = res => {
  * @param {string} auth the base64-encoded username and password for Basic Auth
  * @returns the fetch Promise
  */
-const request = async (uri, auth) => {
+export const request = async (uri, auth) => {
     const headers = {}
     if (auth !== undefined)
         headers.Authorization = `Basic ${auth}`

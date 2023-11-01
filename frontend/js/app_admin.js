@@ -3,6 +3,7 @@
 import Cookies from "https://cdn.jsdelivr.net/npm/js-cookie@3.0.5/+esm"
 import { checkAuth, getOrders } from "./gateway.js"
 import config from "./config.js"
+import { connectWebSocket } from "./websockets.js"
 
 /** 
  * @typedef {import("./typedef.js").Order} Order 
@@ -15,6 +16,7 @@ const init = () => {
 
     checkCredentials().then(auth => {
         getOrders(auth).then(response => response.json()).then(showOrders)
+        connectWebSocket("admin", auth).then()
     })
 }
 
