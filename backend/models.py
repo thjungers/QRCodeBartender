@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Table
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -48,6 +50,7 @@ class Order(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
     client_name: Mapped[str]
+    client_uuid: Mapped[UUID]
     started: Mapped[bool] = mapped_column(default=False)
     served: Mapped[bool] = mapped_column(default=False)
 

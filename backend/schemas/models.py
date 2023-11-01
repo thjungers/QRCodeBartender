@@ -1,4 +1,5 @@
 from pydantic import BaseModel, Field
+from uuid import UUID
 
 
 class Table(BaseModel):
@@ -83,6 +84,7 @@ class OrderItemDeep(OrderItem):
 class OrderCreate(BaseModel):
     """An order to create."""
     client_name: str
+    client_uuid: UUID
     table_slug: str
     items: list[OrderItemCreate]
 
@@ -90,6 +92,7 @@ class Order(BaseModel):
     """An order in the database."""
     id: int
     client_name: str
+    client_uuid: UUID
     started: bool
     served: bool
     table: Table

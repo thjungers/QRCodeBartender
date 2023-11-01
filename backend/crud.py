@@ -19,6 +19,7 @@ def get_orders(db: Session):
 def create_order(order: models.OrderCreate, db: Session):
     order_db = db_models.Order(
         client_name=order.client_name,
+        client_uuid=order.client_uuid,
         table=get_table_by_slug(order.table_slug, db),
         items=[
             db_models.OrderItem(

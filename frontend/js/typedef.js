@@ -50,10 +50,11 @@
  * @typedef Order
  * @prop {number} id
  * @prop {string} client_name
+ * @prop {string} client_uuid
  * @prop {boolean} started
  * @prop {boolean} served
  * @prop {Table} table
- * @prop {MenuItem[]} items
+ * @prop {OrderItem[]} items
  */
 
 export const Types = {}

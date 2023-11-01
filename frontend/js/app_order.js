@@ -275,6 +275,7 @@ const updateCartModal = () => {
 const submitCart = () => {
     postOrder({
         client_name: "Thomas", // TODO ask the user
+        client_uuid: getUserId("client"),
         table_slug: "salon", // TODO ask the user
         items: cart.map(elm => ({
             menu_item_id: elm.item.id,
