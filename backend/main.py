@@ -61,6 +61,23 @@ def check_authentication_credentials():
 def get_menu(db: Session = Depends(get_db)):
     return crud.get_menu(db)
 
+@app.patch("/menu/{menu_item_id}/", response_model=models.MenuItem, dependencies=[Depends(secure)])
+async def update_menu_item(menu_item_id: int, menu_item_patch: models.MenuItemPatch, db: Session = Depends(get_db)):
+    # Update the menu item in the database
+    new_menu_item = crud.update_menu_item(menu_item_id, menu_item_patch, db)
+
+    # And send an event through the WebSocket to notify the update
+    event = events.MenuItemAvailabilityEvent(
+        detail=events.MenuItemAvailabilityEventDetail(
+            item_id=menu_item_id, 
+            available=menu_item_patch.available
+        )
+    )
+    await ws_manager.broadcast(event.model_dump())
+
+    return new_menu_item
+
+
 @app.get("/orders/", response_model=list[models.Order], dependencies=[Depends(secure)])
 def get_orders(db: Session = Depends(get_db)):
     return crud.get_orders(db)
@@ -68,6 +85,37 @@ def get_orders(db: Session = Depends(get_db)):
 @app.post("/orders/", response_model=models.Order)
 def create_order(order: models.OrderCreate, db: Session = Depends(get_db)):
     return crud.create_order(order, db)
+
+@app.patch("/orders/{order_id}/", response_model=models.Order, dependencies=[Depends(secure)])
+async def update_order(order_id: int, order_patch: models.OrderPatch, db: Session = Depends(get_db)):
+    # Update the order in the database
+    new_order = crud.update_order(order_id, order_patch, db)
+
+    # And send an event through the WebSocket to notify the update
+    if order_patch.started is not None:
+        event = events.OrderStartedEvent(
+            detail=events.OrderStartedEventDetail(
+                order_id=order_id,
+                started=order_patch.started
+            )
+        )
+    elif order_patch.served is not None:
+        event = events.OrderServedEvent(
+            detail=events.OrderServedEventDetail(
+                order_id=order_id,
+                served=order_patch.served
+            )
+        )
+    else:
+        raise ValueError("order_patch must contain started or served.")
+    
+    # Broadcast this event to admins
+    await ws_manager.broadcast(event.model_dump(), "admin")
+    # And send it to the client who made the order
+    await ws_manager.send_message(event.model_dump(), new_order.client_uuid)
+
+    return new_order
+
 
 @app.get("/tables/", response_model=list[models.Table])
 def get_tables(db: Session = Depends(get_db)):
@@ -91,4 +139,3 @@ async def websocket_admin_endpoint(websocket: WebSocket, user_id: UUID, token: s
         raise WebSocketException(code=status.WS_1006_ABNORMAL_CLOSURE, reason="Authentication error: GET a valid token from /ws-auth/")
 
     await ws_endpoint(websocket, "admin", user_id)
-

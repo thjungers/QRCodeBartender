@@ -10,6 +10,14 @@ def get_menu(db: Session):
 def get_menu_item(menu_item_id: int, db: Session):
     return db.query(db_models.MenuItem).filter(db_models.MenuItem.id == menu_item_id).first()
 
+def update_menu_item(menu_item_id: int, menu_item_patch: models.MenuItemPatch, db: Session):
+    menu_item = db.query(db_models.MenuItem).filter(db_models.MenuItem.id == menu_item_id).first()
+    for attr, value in menu_item_patch.model_dump(exclude_unset=True).items():
+        setattr(menu_item, attr, value)
+    db.commit()
+    db.refresh(menu_item)
+    return menu_item
+
 def get_option_by_slug(option_slug: str, db: Session):
     return db.query(db_models.Option).filter(db_models.Option.slug == option_slug).first()
 
@@ -40,6 +48,15 @@ def create_order(order: models.OrderCreate, db: Session):
     db.commit()
     db.refresh(order_db)
     return order_db
+
+def update_order(order_id: int, order_patch: models.OrderPatch, db: Session):
+    order = db.query(db_models.Order).filter(db_models.Order.id == order_id).first()
+    for attr, value in order_patch.model_dump(exclude_unset=True).items():
+        setattr(order, attr, value)
+    db.commit()
+    db.refresh(order)
+    return order
+
 
 def get_table_by_id(table_id: int, db: Session):
     return db.query(db_models.Table).filter(db_models.Table.id == table_id).first()

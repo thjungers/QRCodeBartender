@@ -16,3 +16,19 @@ class MenuItemAvailabilityEventDetail(EventDetail):
 class MenuItemAvailabilityEvent(Event):
     name: str = "app-menu-item-availability"
     detail: MenuItemAvailabilityEventDetail
+
+class OrderStartedEventDetail(EventDetail):
+    order_id: int
+    started: bool
+
+class OrderStartedEvent(Event):
+    name: str = "app-order-started"
+    detail: OrderStartedEventDetail
+
+class OrderServedEventDetail(EventDetail):
+    order_id: int
+    served: bool
+
+class OrderServedEvent(Event):
+    name: str = "app-order-served"
+    detail: OrderServedEventDetail

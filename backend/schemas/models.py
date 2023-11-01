@@ -1,5 +1,6 @@
-from pydantic import BaseModel, Field
 from uuid import UUID
+
+from pydantic import BaseModel, Field, model_validator
 
 
 class Table(BaseModel):
@@ -45,6 +46,9 @@ class MenuItem(BaseModel):
 
     class Config:
         from_attributes = True
+
+class MenuItemPatch(BaseModel):
+    available: bool
 
 
 class OrderOptionCreate(BaseModel):
@@ -97,3 +101,13 @@ class Order(BaseModel):
     served: bool
     table: Table
     items: list[OrderItem]
+
+class OrderPatch(BaseModel):
+    started: bool | None = None
+    served: bool | None = None
+
+    @model_validator(mode="after")
+    def check_one(self):
+        if self.started is None and self.served is None:
+            raise ValueError("at least one attribute is required")
+        return self
