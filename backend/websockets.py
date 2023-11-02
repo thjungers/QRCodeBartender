@@ -1,7 +1,8 @@
+import json
+from typing import Any
 from uuid import UUID
 
 from fastapi import WebSocket, WebSocketDisconnect
-from starlette.websockets import WebSocketState
 
 import logging
 logger = logging.getLogger(__name__)
@@ -36,7 +37,7 @@ class WebSocketConnectionManager:
             for websocket in self.active_connections[user_id]:
                 logger.info(f"Sending message to user {self.user_types[user_id]}:{user_id}")
                 try:
-                    await websocket.send_json(message)
+                    await send_json(websocket, message)
                 except WebSocketDisconnect:
                     self.disconnect(websocket, user_id)
         except KeyError:
@@ -53,7 +54,7 @@ class WebSocketConnectionManager:
 
         for websocket in websockets:
             try:
-                await websocket.send_json(message)
+                await send_json(websocket, message)
             except WebSocketDisconnect:
                 self.disconnect(websocket, user_id)
 
@@ -67,6 +68,24 @@ class WebSocketConnectionManager:
                     return
         except WebSocketDisconnect:
             self.disconnect(websocket, user_id)
+
+
+class UUIDCompatibleJSONEncoder(json.JSONEncoder):
+    """A custom JSON Encoder that can handle UUID objects."""
+    def default(self, value: Any) -> str:
+        if isinstance(value, UUID):
+            return str(value)
+        
+        return super().default(value)
+    
+
+async def send_json(websocket: WebSocket, data: Any) -> None:
+    """Use a custom send_json function to use a custon JSON encoder.
+    
+    From starlette.websockets.
+    """
+    text = json.dumps(data, separators=(",", ":"), cls=UUIDCompatibleJSONEncoder)
+    await websocket.send({"type": "websocket.send", "text": text})
 
 
 ws_manager = WebSocketConnectionManager()
