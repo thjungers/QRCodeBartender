@@ -1,41 +1,40 @@
 from uuid import UUID
 
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
 class Table(BaseModel):
     """A table that can make orders, read-only for now."""
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     name: str
     slug: str
-
-    class Config:
-        from_attributes = True
 
 
 class MenuCategory(BaseModel):
     """A category in the menu, read-only for now."""
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     name: str
     slug: str
 
-    class Config:
-        from_attributes = True
-
 
 class Option(BaseModel):
     """An option for items, read-only for now."""
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     name: str
     slug: str
     type: str
 
-    class Config:
-        from_attributes = True
-
 
 class MenuItem(BaseModel):
     """An item on the menu, read-only for now."""
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     name: str
     description: str
@@ -43,9 +42,6 @@ class MenuItem(BaseModel):
     available: bool
     category: MenuCategory
     options: list[Option]
-
-    class Config:
-        from_attributes = True
 
 class MenuItemPatch(BaseModel):
     available: bool
@@ -58,6 +54,8 @@ class OrderOptionCreate(BaseModel):
 
 class OrderOption(BaseModel):
     """An option for an item in an order in the database."""
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     value: str | bool
     option: Option
@@ -75,6 +73,8 @@ class OrderItemCreate(BaseModel):
 
 class OrderItem(BaseModel):
     """An item in an order in the database."""
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     menu_item: MenuItem
     quantity: int
@@ -94,6 +94,8 @@ class OrderCreate(BaseModel):
 
 class Order(BaseModel):
     """An order in the database."""
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     client_name: str
     client_uuid: UUID
