@@ -1,7 +1,7 @@
 "use strict"
 
 import Cookies from "https://cdn.jsdelivr.net/npm/js-cookie@3.0.5/+esm"
-import { checkAuth, getOrders, setOrderStarted } from "./gateway.js"
+import { checkAuth, getOrders, setOrderStarted, setOrderServed } from "./gateway.js"
 import config from "./config.js"
 import { connectWebSocket } from "./websockets.js"
 import { localize, t } from "./i18n.js"
@@ -20,9 +20,10 @@ const init = () => {
 
     checkCredentials().then(auth => {
         connectWebSocket("admin", auth).then()
-        
+
         const orderDiv = document.getElementById("admin-orders")
         getOrders(auth).then(response => response.json()).then(orders => orders.forEach(order => showOrder(order, orderDiv, auth)))
+        document.addEventListener("app-new-order", event => showOrder(event.detail.order, orderDiv, auth))
     })
 }
 
@@ -76,6 +77,10 @@ const checkCredentials = () => new Promise((resolve, reject) => {
  * @param {string} auth the authentication cookie, for API calls
 */
 const showOrder = (order, root, auth) => {
+    if (order.served) {
+        return
+    }
+    
     const orderTemplate = document.getElementById("order-template")
     /** @type {HTMLElement} */
     const clone = orderTemplate.content.cloneNode(true)
@@ -97,10 +102,26 @@ const showOrder = (order, root, auth) => {
             showOrderStatus(order, card)
         }
     })
+    document.addEventListener("app-order-served", event => {
+        if (event.detail.order_id == order.id && event.detail.served) {
+            card.classList.remove("show")
+            setTimeout(() => card.classList.add("d-none"), 500)
+        }
+    })
 
     clone.querySelector(".order-start-btn").addEventListener("click", event => {
-        // Button clicked: update the order through the API
+        // Start button clicked: update the order through the API
         setOrderStarted(order.id, auth)
+    })
+    card.addEventListener("change", event => {
+        const checkboxes = card.querySelectorAll("input[type='checkbox']")
+        if (Array.from(checkboxes).every(checkbox => checkbox.checked)) {
+            card.querySelector(".order-serve-btn").removeAttribute("disabled")
+        }
+    })
+    clone.querySelector(".order-serve-btn").addEventListener("click", event => {
+        // Send button clicked: update the order through the API
+        setOrderServed(order.id, auth)
     })
     
     root.appendChild(clone)
@@ -118,6 +139,10 @@ const showOrderStatus = (order, card) => {
         card.querySelector(".card-header").classList.add("preparing-order")
         // Enable checkboxes
         card.querySelectorAll("input[type='checkbox']").forEach(checkbox => checkbox.removeAttribute("disabled"))
+        // Show the button to send the order
+        card.querySelector(".order-start-btn").classList.add("d-none")
+        // Hide the "start" button
+        card.querySelector(".order-serve-btn").classList.remove("d-none")
     }
     else {
         // If order not started:
@@ -125,6 +150,10 @@ const showOrderStatus = (order, card) => {
         card.querySelector(".card-header").classList.remove("preparing-order")
         // Disable checkboxes
         card.querySelectorAll("input[type='checkbox']").forEach(checkbox => checkbox.setAttribute("disabled", ""))
+        // Hide the button to send the order
+        card.querySelector(".order-start-btn").classList.remove("d-none")
+        // Show the "start" button
+        card.querySelector(".order-serve-btn").classList.add("d-none")
     }
     
 }

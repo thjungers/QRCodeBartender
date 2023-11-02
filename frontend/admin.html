@@ -27,7 +27,7 @@
     </div>
     <!-- Template for orders -->
     <template id="order-template">
-        <div class="card mb-2 order-card">
+        <div class="card mb-2 order-card fade show">
             <div class="card-header d-flex">
                 <div class="order-title flex-grow-1">
                     <span data-i18n="admin:order-number">Order #</span><span class="order-number"></span>
@@ -38,6 +38,7 @@
                 </div>
                 <div class="order-actions">
                     <button type="button" class="btn btn-primary order-start-btn"><i class="bi bi-play-fill"></i></button>
+                    <button type="button" class="btn btn-primary order-serve-btn d-none" disabled><i class="bi bi-send-fill"></i></button>
                 </div>
             </div>
             <div class="card-body">

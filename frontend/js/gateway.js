@@ -100,3 +100,11 @@ export const postOrder = async order => requestPost("/orders/", order)
  * @returns the fetch Promise
  */
 export const setOrderStarted = async (order_id, auth) => requestPatch(`/orders/${order_id}/`, {started: true}, auth)
+
+/**
+ * Set an order as served
+ * @param {int} order_id
+ * @param {string} auth the base64-encoded username and password for Basic Auth
+ * @returns the fetch Promise
+ */
+export const setOrderServed = async (order_id, auth) => requestPatch(`/orders/${order_id}/`, {served: true}, auth)
