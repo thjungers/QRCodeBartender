@@ -83,8 +83,19 @@ def get_orders(db: Session = Depends(get_db)):
     return crud.get_orders(db)
 
 @app.post("/orders/", response_model=models.Order)
-def create_order(order: models.OrderCreate, db: Session = Depends(get_db)):
-    return crud.create_order(order, db)
+async def create_order(order: models.OrderCreate, db: Session = Depends(get_db)):
+    # Create the order in the database
+    new_order = crud.create_order(order, db)
+
+    # And send an event through the WebSocket to notify the admin dashboard
+    event = events.NewOrderEvent(
+        detail=events.NewOrderEventDetail(
+            order=models.Order.model_validate(new_order)
+        )
+    )
+    await ws_manager.broadcast(event.model_dump(), "admin")
+
+    return new_order
 
 @app.patch("/orders/{order_id}/", response_model=models.Order, dependencies=[Depends(secure)])
 async def update_order(order_id: int, order_patch: models.OrderPatch, db: Session = Depends(get_db)):

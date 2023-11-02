@@ -2,6 +2,8 @@
 
 from pydantic import BaseModel
 
+from .models import Order
+
 class EventDetail(BaseModel):
     pass
 
@@ -16,6 +18,13 @@ class MenuItemAvailabilityEventDetail(EventDetail):
 class MenuItemAvailabilityEvent(Event):
     name: str = "app-menu-item-availability"
     detail: MenuItemAvailabilityEventDetail
+
+class NewOrderEventDetail(EventDetail):
+    order: Order
+
+class NewOrderEvent(Event):
+    name: str = "app-new-order"
+    detail: NewOrderEventDetail
 
 class OrderStartedEventDetail(EventDetail):
     order_id: int
