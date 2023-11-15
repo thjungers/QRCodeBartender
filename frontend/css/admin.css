@@ -22,6 +22,14 @@
     }
 }
 
+#admin-main-app > div {
+    display: none;
+}
+
+#admin-main-app > div.current-tab {
+    display: block;
+}
+
 .admin-navbar-element {
     width: var(--app-nav-element-size);
     height: var(--app-nav-element-size);
@@ -53,4 +61,14 @@
     0% {
         background-position-x: 4rem;
     }
+}
+
+.order-card.fade {
+    transition: opacity .15s linear, max-height .5s ease-out .2s, margin-bottom .2s linear .45s;
+    max-height: 1000px;
+}
+
+.order-card.fade:not(.show) {
+    max-height: 0;
+    margin-bottom: 0 !important;
 }

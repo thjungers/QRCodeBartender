@@ -21,7 +21,7 @@ const init = () => {
     checkCredentials().then(auth => {
         connectWebSocket("admin", auth).then()
 
-        const orderDiv = document.getElementById("admin-orders")
+        const orderDiv = document.getElementById("admin-orders").children[0]
         getOrders(auth).then(response => response.json()).then(orders => orders.forEach(order => showOrder(order, orderDiv, auth)))
         document.addEventListener("app-new-order", event => showOrder(event.detail.order, orderDiv, auth))
     })
@@ -105,7 +105,6 @@ const showOrder = (order, root, auth) => {
     document.addEventListener("app-order-served", event => {
         if (event.detail.order_id == order.id && event.detail.served) {
             card.classList.remove("show")
-            setTimeout(() => card.classList.add("d-none"), 500)
         }
     })
 
