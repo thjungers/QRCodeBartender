@@ -3,5 +3,6 @@
     "select-required": "Choisis une option",
     "close": "Fermer",
     "with": "Avec",
-    "without": "Sans"
+    "without": "Sans",
+    "order-number": "Commande № "
 }

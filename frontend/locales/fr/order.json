@@ -6,5 +6,10 @@
     "display-cart": "Affiche ton panier",
     "your-cart": "Ton panier",
     "send-order": "Envoyer la commande",
-    "item-not-available": "Désolé, cet article n'est plus dispo 😓"
+    "item-not-available": "Désolé, cet article n'est plus dispo 😓",
+    "started": "On prépare ta commande.",
+    "served": "Ta commande arrive !",
+    "waiting": "Un peu de patience, on s'occupe de toi.",
+    "you-ve-already-made-n-orders-prepend": "Tu as déjà passé ",
+    "you-ve-already-made-n-orders-append": " commandes ! Un peu de patience, tu pourras bientôt en passer une nouvelle."
 }

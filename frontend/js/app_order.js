@@ -1,13 +1,15 @@
 "use strict"
 
 import { localize, t } from "./i18n.js"
-import { getMenu, postOrder } from "./gateway.js"
+import { getMenu, postOrder, getClientOrders } from "./gateway.js"
 import { connectWebSocket, getUserId } from "./websockets.js"
 import { formatOption } from "./app_shared.js"
+import config from "./config.js"
 
 /** @typedef {import("./typedef.js").MenuCategory} MenuCategory */
 /** @typedef {import("./typedef.js").Option} Option */
 /** @typedef {import("./typedef.js").MenuItem} MenuItem */
+/** @typedef {import("./typedef.js").Order} Order */
 /** @typedef {{item: MenuItem, options: {}, quantity: number}} CartItem */
 
 /** @type {MenuItem[]} */
@@ -17,9 +19,12 @@ const categories = []
 /** @type {CartItem[]} */
 const cart = []
 const modals = {}
+let numOrders = 0
 
 const init = () => {
     getMenu().then(response => response.json()).then(createMenu)
+    getClientOrders(getUserId("client")).then(response => response.json()).then(createOrderNotifications)
+
     localize("body")
     connectWebSocket("client").then()
 
@@ -267,6 +272,11 @@ const updateCartModal = () => {
 
 /** Save the cart as a new order to the API */
 const submitCart = () => {
+    if (config.max_concurrent_orders > 0 && numOrders >= config.max_concurrent_orders) {
+        alert(t("order:you-ve-already-made-n-orders-prepend") + numOrders + t("order:you-ve-already-made-n-orders-append"))
+        return false
+    }
+
     postOrder({
         client_name: "Thomas", // TODO ask the user
         client_uuid: getUserId("client"),
@@ -279,10 +289,14 @@ const submitCart = () => {
                 value: elm.options[slug]
             }))
         }))
-    }).then(() => {
+    })
+    .then(response => response.json())
+    .then(order => {
         cart.length = 0
         modals.showCart.hide()
         updateCartBar()
+        showOrderNotification(order)
+        numOrders += 1
     })
 }
 
@@ -340,6 +354,67 @@ const checkValidity = form => {
         select.reportValidity()
     }
     return form.checkValidity()
+}
+
+/** @param {Order[]} orders */
+const createOrderNotifications = orders => {
+    for (const order of orders) {
+        numOrders += 1
+        showOrderNotification(order)
+    }
+}
+
+/** @param {Order} order */
+const showOrderNotification = order => {
+    const toastContainer = document.querySelector("#toast-container")
+    const template = document.getElementById("toast-template")
+
+    const clone = template.content.cloneNode(true)
+    const toast = clone.querySelector(".toast")
+
+    clone.querySelector(".toast-order-number").textContent = order.id
+    clone.querySelector(".toast-order-table").textContent = order.table.name
+    const toastBody = clone.querySelector(".toast-body")
+    setNotificationBody(order, toastBody)
+
+    toastContainer.appendChild(clone)
+    localize("#toast-container")
+    const toastObj = new bootstrap.Toast(toast, {autohide: order.served})
+    toastObj.show()
+
+    document.addEventListener("app-order-started", event => {
+        if (event.detail.order_id == order.id) {
+            order.started = event.detail.started
+            setNotificationBody(order, toastBody)
+        }
+    })
+    document.addEventListener("app-order-served", event => {
+        if (event.detail.order_id == order.id) {
+            order.served = event.detail.served
+            setNotificationBody(order, toastBody)
+            if (order.served) {
+                setTimeout(() => toastObj.hide(), 5000)
+                numOrders -= 1
+            }
+        }
+    })
+}
+
+/**
+ * Set the contents of the notification body
+ * @param {Order} order 
+ * @param {HTMLElement} body 
+ */
+const setNotificationBody = (order, body) => {
+    if (order.served) {
+        body.textContent = t("order:served")
+    }
+    else if (order.started) {
+        body.textContent = t("order:started")
+    }
+    else {
+        body.textContent = t("order:waiting")
+    }
 }
 
 if (document.readyState === "loading")

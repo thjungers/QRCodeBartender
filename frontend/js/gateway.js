@@ -87,6 +87,13 @@ export const getMenu = async () => request("/menu/")
 export const getOrders = async auth => request("/orders/", auth)
 
 /**
+ * Get the orders from the API for the given client
+ * @param {string} client_id
+ * @returns the fetch Promise
+ */
+export const getClientOrders = async client_id => request(`/client-orders/?client_id=${client_id}`)
+
+/**
  * Post a new order
  * @param order
  * @returns the fetch Promise

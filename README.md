@@ -13,7 +13,8 @@ Create a `frontend/config.json` file containing the following keys:
 ```json
 {
     "backend_url": "",
-    "websocket_url": ""
+    "websocket_url": "",
+    "max_concurrent_orders": 0 // set a max number of orders; 0 means unlimited
 }
 ```
 

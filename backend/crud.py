@@ -1,3 +1,4 @@
+from uuid import UUID
 from sqlalchemy.orm import Session
 
 from .schemas import models
@@ -21,8 +22,13 @@ def update_menu_item(menu_item_id: int, menu_item_patch: models.MenuItemPatch, d
 def get_option_by_slug(option_slug: str, db: Session):
     return db.query(db_models.Option).filter(db_models.Option.slug == option_slug).first()
 
-def get_orders(db: Session):
-    return db.query(db_models.Order).all()
+def get_orders(db: Session, client_id: UUID | None = None, show_served: bool = False):
+    query = db.query(db_models.Order)
+    if client_id is not None:
+        query = query.filter(db_models.Order.client_uuid == client_id)
+    if not show_served:
+        query = query.filter(db_models.Order.served == False)
+    return query.all()
 
 def create_order(order: models.OrderCreate, db: Session):
     order_db = db_models.Order(

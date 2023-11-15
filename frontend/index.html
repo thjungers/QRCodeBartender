@@ -22,6 +22,19 @@
             </button>
         </div>
     </div>
+    <!-- Notifications -->
+    <div id="toast-container" style="--bs-toast-zindex: 1000" class="toast-container position-fixed top-0 end-0 p-2"></div>
+    <!-- Templates for notifications -->
+    <template id="toast-template">
+        <div class="toast" role="alert">
+            <div class="toast-header">
+                <i class="bi bi-clock-history"></i>
+                <strong class="ms-2 me-auto"><span data-i18n="order-number">Order #</span><span class="toast-order-number"></span></strong>
+                <small class="text-body-secondary toast-order-table"></small>
+            </div>
+            <div class="toast-body"></div>
+        </div>
+    </template>
     <!-- Templates for menu parts -->
     <template id="menu-category-template">
         <div class="accordion-item">

@@ -78,6 +78,10 @@ async def update_menu_item(menu_item_id: int, menu_item_patch: models.MenuItemPa
     return new_menu_item
 
 
+@app.get("/client-orders/", response_model=list[models.Order])
+def get_client_orders(client_id: UUID, db: Session = Depends(get_db)):
+    return crud.get_orders(db, client_id)
+
 @app.get("/orders/", response_model=list[models.Order], dependencies=[Depends(secure)])
 def get_orders(db: Session = Depends(get_db)):
     return crud.get_orders(db)
