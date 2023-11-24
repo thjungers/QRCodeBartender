@@ -94,6 +94,12 @@ export const getOrders = async auth => request("/orders/", auth)
 export const getClientOrders = async client_id => request(`/client-orders/?client_id=${client_id}`)
 
 /**
+ * Get the tables from the API
+ * @returns the fetch Promise
+ */
+export const getTables = async () => request("/tables/")
+
+/**
  * Post a new order
  * @param order
  * @returns the fetch Promise

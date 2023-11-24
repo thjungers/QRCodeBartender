@@ -11,5 +11,10 @@
     "served": "Ta commande arrive !",
     "waiting": "Un peu de patience, on s'occupe de toi.",
     "you-ve-already-made-n-orders-prepend": "Tu as déjà passé ",
-    "you-ve-already-made-n-orders-append": " commandes ! Un peu de patience, tu pourras bientôt en passer une nouvelle."
+    "you-ve-already-made-n-orders-append": " commandes ! Un peu de patience, tu pourras bientôt en passer une nouvelle.",
+    "identify-yourself": "Identifies-toi !",
+    "set-identity": "S'identier",
+    "your-name": "Ton nom",
+    "your-table": "Ta table",
+    "choose-option": "Choisi une option"
 }

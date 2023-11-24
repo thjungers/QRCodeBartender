@@ -1,13 +1,15 @@
 "use strict"
 
 import { localize, t } from "./i18n.js"
-import { getMenu, postOrder, getClientOrders } from "./gateway.js"
+import { getMenu, postOrder, getClientOrders, getTables } from "./gateway.js"
 import { connectWebSocket, getUserId } from "./websockets.js"
 import { formatOption } from "./app_shared.js"
 import config from "./config.js"
+import Cookies from "https://cdn.jsdelivr.net/npm/js-cookie@3.0.5/+esm"
 
 /** @typedef {import("./typedef.js").MenuCategory} MenuCategory */
 /** @typedef {import("./typedef.js").Option} Option */
+/** @typedef {import("./typedef.js").Table} Table */
 /** @typedef {import("./typedef.js").MenuItem} MenuItem */
 /** @typedef {import("./typedef.js").Order} Order */
 /** @typedef {{item: MenuItem, options: {}, quantity: number}} CartItem */
@@ -20,8 +22,26 @@ const categories = []
 const cart = []
 const modals = {}
 let numOrders = 0
+let tableSlug
+let clientName 
 
 const init = () => {
+    var urlParams = new URLSearchParams(window.location.search)
+    tableSlug = urlParams.get('table')
+
+    //check clientName in cookies
+    clientName = Cookies.get("client_name")
+
+    //check tableSlug exists
+    getTables().then(response => response.json()).then(tables => {
+        if(!tables.some(table => table.slug == tableSlug))
+            tableSlug = null
+        if(tableSlug === null || clientName === undefined) {
+            showIdentifyYourselfModal(tables)
+        }
+    })
+
+
     getMenu().then(response => response.json()).then(createMenu)
     getClientOrders(getUserId("client")).then(response => response.json()).then(createOrderNotifications)
 
@@ -29,9 +49,13 @@ const init = () => {
     connectWebSocket("client").then()
 
     modals.addItem = new bootstrap.Modal("#add-item-modal")
+    modals.identifyYourself = new bootstrap.Modal("#identify-yourself-modal")
     modals.showCart = new bootstrap.Modal("#show-cart-modal")
     document.getElementById("show-cart-modal").addEventListener("show.bs.modal", updateCartModal)
     document.querySelector("#show-cart-modal-submit").addEventListener("click", submitCart)
+    document.querySelector("#identify-yourself-modal-submit").addEventListener("click", submitClient)
+    document.querySelector("#identify-yourself-modal form").addEventListener("submit", event => event.preventDefault())
+
 }
 
 /** Populate the UI with the menu
@@ -167,6 +191,33 @@ const showAddItemModal = item => {
     }
 }
 
+/** Show the modal to identify the client, letting the user choose options
+ * @param {Table[]} tables */
+const showIdentifyYourselfModal = tables => {
+    const modalDiv = document.getElementById("identify-yourself-modal")
+    const modal = modals.identifyYourself
+    const input = modalDiv.querySelector("input")
+    const form = modalDiv.querySelector("form")
+    const select = modalDiv.querySelector("select")
+
+    if(clientName !== undefined)
+        input.value = clientName
+
+    if(tableSlug !== null)
+        select.disabled = true
+
+    for(const table of tables) {
+        var el = document.createElement("option");
+        if(tableSlug === table.slug)
+            el.selected = true
+        el.textContent = table.name;
+        el.value = table.slug;
+        select.appendChild(el);
+    }
+
+    modal.show();
+}
+
 /** Create the input ID for the given option 
  * @param {MenuItemOption} option
 */
@@ -278,9 +329,9 @@ const submitCart = () => {
     }
 
     postOrder({
-        client_name: "Thomas", // TODO ask the user
+        client_name: clientName,
         client_uuid: getUserId("client"),
-        table_slug: "salon", // TODO ask the user
+        table_slug: tableSlug,
         items: cart.map(elm => ({
             menu_item_id: elm.item.id,
             quantity: elm.quantity,
@@ -298,6 +349,30 @@ const submitCart = () => {
         showOrderNotification(order)
         numOrders += 1
     })
+}
+
+/** Save the Client in a cookie */
+const submitClient = () => {
+    const modalDiv = document.getElementById("identify-yourself-modal")
+    const input = modalDiv.querySelector("input")
+    const form = modalDiv.querySelector("form")
+    const select = modalDiv.querySelector("select")
+    const modal = modals.identifyYourself
+
+    if(!form.reportValidity())
+        return
+
+    //set client Name in a cookie 
+    Cookies.set("client_name", input.value, {path: ""})
+    clientName = input.value
+
+    //set Table Slud in the url query
+    const urlParams = new URLSearchParams(window.location.search);
+    urlParams.set('table', select.value);
+    window.location.search = urlParams;
+    tableSlug = select.value
+
+    modal.hide()
 }
 
 /** 

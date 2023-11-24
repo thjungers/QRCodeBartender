@@ -130,5 +130,32 @@
             <div class="cart-item-options fst-italic"></div>
         </div>
     </template>
+    <!-- Modal to ask client name and table if not set -->
+    <div id="identify-yourself-modal" class="modal fade" data-bs-backdrop="static" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" data-i18n="order:identify-yourself">Identify yourself !</h5>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="mb-3">
+                            <label for="inputClientName" class="form-label" data-i18n="order:your-name">Your name</label>
+                            <input type="text" class="form-control" id="inputClientName" name="inputClientName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="selectTable" class="form-label" data-i18n="order:your-table">Your table</label>
+                            <select class="form-select" id="selectTable" name="selectTable" required>
+                                <option data-i18n="order:choose-option" value="">Choose Option</option> 
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="identify-yourself-modal-submit" class="btn btn-primary" data-i18n="order:set-identity">Set identity</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
