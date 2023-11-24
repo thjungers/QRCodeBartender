@@ -1,7 +1,7 @@
 "use strict"
 
 import Cookies from "https://cdn.jsdelivr.net/npm/js-cookie@3.0.5/+esm"
-import { checkAuth, getOrders, setOrderStarted, setOrderServed } from "./gateway.js"
+import { checkAuth, getOrders, setOrderStarted, setOrderServed, getMenu } from "./gateway.js"
 import config from "./config.js"
 import { connectWebSocket } from "./websockets.js"
 import { localize, t } from "./i18n.js"
@@ -10,8 +10,14 @@ import { formatOption } from "./app_shared.js"
 /** 
  * @typedef {import("./typedef.js").Order} Order 
  * @typedef {import("./typedef.js").OrderItem} OrderItem 
+ * @typedef {import("./typedef.js").MenuItem} MenuItem
+ * @typedef {import("./typedef.js").MenuCategory} MenuCategory
  */
 
+/** @type {MenuItem[]} */
+const menuItems = []
+/** @type {MenuCategory[]} */
+const categories = []
 const modals = {}
 
 const init = () => {
@@ -24,7 +30,24 @@ const init = () => {
         const orderDiv = document.getElementById("admin-orders").children[0]
         getOrders(auth).then(response => response.json()).then(orders => orders.forEach(order => showOrder(order, orderDiv, auth)))
         document.addEventListener("app-new-order", event => showOrder(event.detail.order, orderDiv, auth))
+
+        getMenu().then(response => response.json()).then(createMenu)
     })
+
+    document.querySelectorAll("#admin-navbar > div").forEach(button => button.addEventListener("click", event => changeTab(button)))
+}
+
+const changeTab = button => {
+    //set button active
+    const navbar = document.getElementById("admin-navbar")
+    navbar.querySelector(".active").classList.remove("active")
+    button.classList.add("active")
+
+    //set current tab
+    const mainApp = document.getElementById("admin-main-app")
+    mainApp.querySelector(".current-tab").classList.remove("current-tab")
+    const target = mainApp.querySelector(button.dataset.appTarget)
+    target.classList.add("current-tab")
 }
 
 /**
@@ -125,6 +148,61 @@ const showOrder = (order, root, auth) => {
     
     root.appendChild(clone)
     localize("#admin-orders")
+}
+
+/** Populate the UI with the menu
+ * @param {MenuItem[]} menuData */
+const createMenu = menuData => {
+    for (const item of menuData) {
+        menuItems.push(item)
+        if (!categories.find(category => category.slug === item.category.slug)) {
+            categories.push(item.category)
+        }
+    }
+    // Sort categories by id
+    categories.sort((a, b) => a.id - b.id)
+
+    const menuDiv = document.querySelector("#admin-menu > div")
+    const menuCategoryTemplate = document.getElementById("menu-category-template")
+    const menuItemTemplate = document.getElementById("menu-item-template")
+
+    for (const category of categories) {
+        const items = menuItems.filter(item => item.category.slug === category.slug)
+
+        /** @type {HTMLElement} */
+        const menuCategoryClone = menuCategoryTemplate.content.cloneNode(true)
+
+        const accordionId = `accordion-${category.slug}`
+        menuCategoryClone.querySelector(".menu-category-header > button").setAttribute("data-bs-target", "#" + accordionId)
+        menuCategoryClone.querySelector(".menu-category-header > button").textContent = category.name
+        menuCategoryClone.querySelector(".menu-category-block").setAttribute("id", accordionId)
+
+        const menuCategoryContent = menuCategoryClone.querySelector(".accordion-body")
+
+        for (const item of items) {
+            /** @type {HTMLElement} */
+            const itemElm = menuItemTemplate.content.cloneNode(true)
+            const card = itemElm.querySelector(".card")
+            itemElm.querySelector(".card-title").textContent = item.name
+            itemElm.querySelector(".card-text").textContent = item.description
+            itemElm.querySelector("img").setAttribute("src", item.image)
+            if (!item.available) {
+                showItemAvailability(item, card)
+            }
+
+            itemElm.querySelector(".disable-item-btn").addEventListener("click", event => disableItem(item))
+            document.addEventListener("app-menu-item-availability", event => {
+                // Each card listens for this event on the document. If it is concerned, it changes its status
+                if (event.detail.item_id === item.id) {
+                    item.available = event.detail.available
+                    showItemAvailability(item, card)
+                }
+            })
+
+            menuCategoryContent.appendChild(itemElm)
+        }
+        menuDiv.appendChild(menuCategoryClone)
+    }
 }
 
 /** Set the styles of the order card to show its status: pending or started 
