@@ -121,3 +121,12 @@ export const setOrderStarted = async (order_id, auth) => requestPatch(`/orders/$
  * @returns the fetch Promise
  */
 export const setOrderServed = async (order_id, auth) => requestPatch(`/orders/${order_id}/`, {served: true}, auth)
+
+/**
+ * Set the availability for an item
+ * @param {int} item_id
+ * @param {bool} available
+ * @param {string} auth
+ * @returns the fetch Promise
+ */
+export const setItemAvailability = async (item_id, available, auth) => requestPatch(`/menu/${item_id}/`, {available: available}, auth)
