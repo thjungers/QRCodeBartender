@@ -1,7 +1,7 @@
 "use strict"
 
 import Cookies from "https://cdn.jsdelivr.net/npm/js-cookie@3.0.5/+esm"
-import { checkAuth, getOrders, setOrderStarted, setOrderServed, getMenu } from "./gateway.js"
+import { checkAuth, getOrders, setOrderStarted, setOrderServed, getMenu, setItemAvailability } from "./gateway.js"
 import config from "./config.js"
 import { connectWebSocket } from "./websockets.js"
 import { localize, t } from "./i18n.js"
@@ -31,7 +31,7 @@ const init = () => {
         getOrders(auth).then(response => response.json()).then(orders => orders.forEach(order => showOrder(order, orderDiv, auth)))
         document.addEventListener("app-new-order", event => showOrder(event.detail.order, orderDiv, auth))
 
-        getMenu().then(response => response.json()).then(createMenu)
+        getMenu().then(response => response.json()).then(menuData => createMenu(menuData, auth))
     })
 
     document.querySelectorAll("#admin-navbar > div").forEach(button => button.addEventListener("click", event => changeTab(button)))
@@ -152,7 +152,7 @@ const showOrder = (order, root, auth) => {
 
 /** Populate the UI with the menu
  * @param {MenuItem[]} menuData */
-const createMenu = menuData => {
+const createMenu = (menuData, auth) => {
     for (const item of menuData) {
         menuItems.push(item)
         if (!categories.find(category => category.slug === item.category.slug)) {
@@ -190,7 +190,7 @@ const createMenu = menuData => {
                 showItemAvailability(item, card)
             }
 
-            itemElm.querySelector(".disable-item-btn").addEventListener("click", event => disableItem(item))
+            itemElm.querySelector(".disable-item-btn").addEventListener("click", event => setItemAvailability(item.id, false, auth))
             document.addEventListener("app-menu-item-availability", event => {
                 // Each card listens for this event on the document. If it is concerned, it changes its status
                 if (event.detail.item_id === item.id) {
