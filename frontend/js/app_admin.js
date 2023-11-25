@@ -186,11 +186,9 @@ const createMenu = (menuData, auth) => {
             itemElm.querySelector(".card-title").textContent = item.name
             itemElm.querySelector(".card-text").textContent = item.description
             itemElm.querySelector("img").setAttribute("src", item.image)
-            if (!item.available) {
-                showItemAvailability(item, card)
-            }
 
-            itemElm.querySelector(".disable-item-btn").addEventListener("click", event => setItemAvailability(item.id, false, auth))
+            showItemAvailability(item, card, auth)
+
             document.addEventListener("app-menu-item-availability", event => {
                 // Each card listens for this event on the document. If it is concerned, it changes its status
                 if (event.detail.item_id === item.id) {
@@ -203,6 +201,27 @@ const createMenu = (menuData, auth) => {
         }
         menuDiv.appendChild(menuCategoryClone)
     }
+}
+
+/** Show the item as available or not and set the click event handler
+ * @param {MenuItem} item
+ * @param {HTMLElement} card
+ */
+const showItemAvailability = (item, card, auth) => {
+    const button = card.querySelector(".disable-item-btn")
+    const icon = button.querySelector(".bi")
+    if (item.available) {
+        button.classList.remove("btn-success")
+        button.classList.add("btn-danger")
+        icon.classList.remove("bi-plus-circle")
+        icon.classList.add("bi-dash-circle")
+    } else {
+        button.classList.remove("btn-danger")
+        button.classList.add("btn-success")
+        icon.classList.remove("bi-dash-circle")
+        icon.classList.add("bi-plus-circle")
+    }
+    button.onclick = event => setItemAvailability(item.id, !item.available, auth)
 }
 
 /** Set the styles of the order card to show its status: pending or started 
